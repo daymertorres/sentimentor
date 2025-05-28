@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Inicio de Sesión</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="container">
+        <!-- Login -->
+        <div class="form-box login">
+            <form action="javascript:void(0)">
+                <h1>Inicia Sesión</h1>
+                <div class="input-box">
+                    <input type="text" id="login-user" placeholder="Usuario" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="login-pass" placeholder="Contraseña" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <div class="forgot-link">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="button" id="login-btn" class="btn">Inicia Sesión</button>
+                <p>o inicia sesión con Google</p>
+                <div class="social-icons">
+                    <a href="#" id="google-login"><i class='bx bxl-google'></i></a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Registro -->
+        <div class="form-box register">
+            <form action="javascript:void(0)">
+                <h1>Registrarse</h1>
+                <div class="input-box">
+                    <input type="text" id="register-user" placeholder="Usuario" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="register-pass" placeholder="Contraseña" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <button type="button" id="register-btn" class="btn">Registrarse</button>
+                <p>o regístrate con Google</p>
+                <div class="social-icons">
+                    <a href="#" id="google-register"><i class='bx bxl-google'></i></a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Toggle Panel -->
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>SentiMentor🤖🧠</h1>
+                <p>¿No tienes una cuenta?</p>
+                <button class="btn register-btn">Regístrate</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>SentiMentor🤖🧠</h1>
+                <p>¿Ya tienes una cuenta?</p>
+                <button class="btn login-btn">Inicia Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <!-- Configuración de Firebase -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBXt4lmxH5JFO_9M2Ilf-tiRLlOtXlfOxo",
+        authDomain: "sentimentor-571db.firebaseapp.com",
+        projectId: "sentimentor-571db",
+        storageBucket: "sentimentor-571db.appspot.com",
+        messagingSenderId: "237097457024",
+        appId: "1:237097457024:web:bd7939f3cc754e67a01d65"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- Archivo principal -->
+    <script src="main.js"></script>
+</body>
+</html>

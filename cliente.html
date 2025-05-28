@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Cliente</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <style>
+    .panel {
+      padding: 30px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      text-align: center;
+    }
+
+    .panel h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .panel p {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .logout-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #7494ec;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      align-self: center;
+      width: fit-content;
+      transition: background 0.3s ease;
+    }
+    .logout-btn:hover {
+      background: #5a74c4;
+    }
+
+    /* Chatbox ocupa gran parte del container */
+    .chatbox {
+      margin-top: 20px;
+      width: 100%;
+      height: 70%;
+      background: #f4f4f4;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chatbox-header {
+      background: #7494ec;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .chatbox-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .chatbox-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    .chatbox-input input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      outline: none;
+      border-radius: 0 0 0 20px;
+    }
+
+    .chatbox-input button {
+      background: #7494ec;
+      border: none;
+      color: white;
+      padding: 0 20px;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 0 0 20px 0;
+      transition: background 0.3s ease;
+    }
+    .chatbox-input button:hover {
+      background: #5a74c4;
+    }
+
+    .chat-msg {
+      margin-bottom: 8px;
+    }
+
+    .chat-msg.user {
+      text-align: right;
+      color: #333;
+    }
+
+    .chat-msg.bot {
+      text-align: left;
+      color: #7494ec;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h1>¡SENTIMENTOR!🔎​🧠</h1>
+      <p>Bienvenido a tu lugar seguro. Sentimentor está aquí para escucharte, apoyarte y acompañarte en lo que sientas. No estás solo.</p>
+
+      <!-- Chatbox dentro del cuadro -->
+      <div class="chatbox" id="chatbox">
+        <div class="chatbox-header">Asistente Emocional​🧑‍💻</div>
+        <div class="chatbox-messages" id="chatbox-messages"></div>
+        <div class="chatbox-input">
+          <input type="text" id="chat-input" placeholder="¿Cómo te sientes hoy?" />
+          <button onclick="sendMessage()">Enviar</button>
+        </div>
+      </div>
+
+      <!-- Botón debajo del chatbox -->
+      <button class="logout-btn">Cerrar Sesión</button>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXt4lmxH5JFO_9M2Ilf-tiRLlOtXlfOxo",
+      authDomain: "sentimentor-571db.firebaseapp.com",
+      projectId: "sentimentor-571db",
+      storageBucket: "sentimentor-571db.appspot.com",
+      messagingSenderId: "237097457024",
+      appId: "1:237097457024:web:bd7939f3cc754e67a01d65"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    document.querySelector('.logout-btn').addEventListener('click', async () => {
+      await firebase.auth().signOut();
+      window.location.href = "index.html";
+    });
+
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage('user', message);
+      input.value = '';
+
+      setTimeout(() => {
+        const lower = message.toLowerCase();
+        let response = "Gracias por compartir eso. ¿Te gustaría contarme más?";
+        if (lower.includes('triste') || lower.includes('deprimido')) {
+          response = "Siento que te sientas así. Estoy aquí para escucharte. 💙";
+        } else if (lower.includes('estresado') || lower.includes('ansioso')) {
+          response = "Trata de respirar profundo. Estoy contigo. ¿Qué te preocupa?";
+        } else if (lower.includes('feliz') || lower.includes('contento')) {
+          response = "¡Me alegra mucho! Disfruta ese momento. 😊";
+        } else if (lower.includes('solo')) {
+          response = "Entiendo. A veces hablar ayuda mucho. Estoy aquí contigo.";
+        }
+        appendMessage('bot', response);
+      }, 500);
+    }
+
+    function appendMessage(sender, text) {
+      const container = document.getElementById('chatbox-messages');
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg ' + sender;
+      msg.textContent = text;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+  </script>
+</body>
+</html>

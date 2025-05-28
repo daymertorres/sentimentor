@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <style>
+    .panel {
+      text-align: center;
+      padding: 30px 40px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    .panel h1 {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    .panel p {
+      font-size: 16px;
+      margin-bottom: 25px;
+      color: #555;
+    }
+    .logout-btn {
+      margin-top: auto;
+      padding: 12px 30px;
+      background: #7494ec;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: center;
+      width: 180px;
+      box-shadow: 0 0 10px rgba(116, 148, 236, 0.6);
+      transition: background 0.3s ease;
+    }
+    .logout-btn:hover {
+      background: #5a75d6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background: #f9f9f9;
+    }
+    thead {
+      background: #7494ec;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      font-size: 15px;
+    }
+    tbody tr:hover {
+      background-color: #e1eaff;
+    }
+    .container {
+      position: relative;
+      width: 850px;
+      height: 550px;
+      background: #fff;
+      margin: 20px;
+      border-radius: 30px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, .2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h1>Panel de Administración</h1>
+      <p>Listado de usuarios registrados en la plataforma</p>
+      
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>ID Usuario</th>
+            <th>Correo</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="4" style="text-align:center;">Cargando usuarios...</td></tr>
+        </tbody>
+      </table>
+
+      <button class="logout-btn">Cerrar Sesión</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXt4lmxH5JFO_9M2Ilf-tiRLlOtXlfOxo",
+      authDomain: "sentimentor-571db.firebaseapp.com",
+      projectId: "sentimentor-571db",
+      storageBucket: "sentimentor-571db.firebasestorage.app",
+      messagingSenderId: "237097457024",
+      appId: "1:237097457024:web:bd7939f3cc754e67a01d65"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Verifica si hay usuario autenticado
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        loadUsers();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    async function loadUsers() {
+      const tbody = document.querySelector('#users-table tbody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando usuarios...</td></tr>';
+      try {
+        const snapshot = await db.collection('usuarios').get();
+        if (snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No hay usuarios registrados.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        snapshot.forEach(doc => {
+          const user = doc.data();
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${doc.id}</td>
+            <td>${user.correo || '-'}</td>
+            <td>${user.nombre || '-'}</td>
+            <td>${user.rol || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error("Error cargando usuarios:", error);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Error cargando usuarios.</td></tr>';
+      }
+    }
+
+    // Logout
+    document.querySelector('.logout-btn').addEventListener('click', async () => {
+      await firebase.auth().signOut();
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
+
