@@ -7,6 +7,33 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <style>
+    /* Estilos generales del cuerpo */
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Estilos del contenedor principal */
+    .container {
+      position: relative;
+      width: 850px;
+      height: 550px;
+      background: #fff;
+      margin: 20px;
+      border-radius: 30px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, .2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
     .panel {
       padding: 30px;
       height: 100%;
@@ -48,7 +75,7 @@
     .chatbox {
       margin-top: 20px;
       width: 100%;
-      height: 70%;
+      height: 70%; /* Ajusta la altura si es necesario */
       background: #f4f4f4;
       border-radius: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -114,6 +141,76 @@
       text-align: left;
       color: #7494ec;
     }
+
+    /* New styles for the appointment form */
+    .appointment-form-container {
+        display: none; /* Hidden by default */
+        background: #f4f4f4;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-top: 20px;
+        text-align: left;
+        flex: 1; /* Permite que ocupe el espacio disponible en la columna */
+        overflow-y: auto; /* Añade el scroll vertical cuando el contenido excede la altura */
+        max-height: 70%; /* Limita la altura máxima para que el scroll funcione */
+    }
+
+    .appointment-form-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #7494ec;
+    }
+
+    .appointment-form-container label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .appointment-form-container input[type="date"],
+    .appointment-form-container input[type="time"],
+    .appointment-form-container select,
+    .appointment-form-container textarea {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .appointment-form-container textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .appointment-form-container .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #7494ec;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .appointment-form-container .btn-submit:hover {
+        background: #5a74c4;
+    }
+
+    .panel-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
   </style>
 </head>
 <body>
@@ -122,22 +219,48 @@
       <h1>¡SENTIMENTOR!🔎​🧠</h1>
       <p>Bienvenido a tu lugar seguro. Sentimentor está aquí para escucharte, apoyarte y acompañarte en lo que sientas. No estás solo.</p>
 
-      <!-- Chatbox dentro del cuadro -->
       <div class="chatbox" id="chatbox">
         <div class="chatbox-header">Asistente Emocional​🧑‍💻</div>
         <div class="chatbox-messages" id="chatbox-messages"></div>
         <div class="chatbox-input">
-          <input type="text" id="chat-input" placeholder="¿Cómo te sientes hoy?" />
+          <input type="text" id="chat-input" placeholder="¿Cómo te sientes hoy?"
+/>
           <button onclick="sendMessage()">Enviar</button>
         </div>
       </div>
 
-      <!-- Botón debajo del chatbox -->
-      <button class="logout-btn">Cerrar Sesión</button>
+      <div class="appointment-form-container" id="appointment-form-container">
+        <h2>Agendar Cita</h2>
+        <form id="appointment-form">
+          <label for="profesional">Selecciona un Profesional:</label>
+          <select id="profesional" required>
+            <option value="">-- Selecciona --</option>
+            <option value="Psicólogo A">Psicólogo A</option>
+            <option value="Psicólogo B">Psicólogo B</option>
+            <option value="Orientador C">Orientador C</option>
+          </select>
+
+          <label for="appointment-date">Fecha:</label>
+          <input type="date" id="appointment-date" required>
+
+          <label for="appointment-time">Hora:</label>
+          <input type="time" id="appointment-time" required>
+
+          <label for="reason">Motivo de la Cita:</label>
+          <textarea id="reason" placeholder="Describe brevemente el motivo de tu cita..." required></textarea>
+
+          <button type="submit" class="btn-submit">Confirmar Cita</button>
+        </form>
+      </div>
+
+      <div class="panel-actions">
+        <button class="logout-btn">Cerrar Sesión</button>
+        <button class="logout-btn" id="schedule-appointment-btn">Agendar Cita</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
@@ -148,11 +271,15 @@
       apiKey: "AIzaSyBXt4lmxH5JFO_9M2Ilf-tiRLlOtXlfOxo",
       authDomain: "sentimentor-571db.firebaseapp.com",
       projectId: "sentimentor-571db",
-      storageBucket: "sentimentor-571db.appspot.com",
+      storageBucket: "sentimentor-571db.appspot.com", // Asegúrate de que sea .appspot.com
       messagingSenderId: "237097457024",
       appId: "1:237097457024:web:bd7939f3cc754e67a01d65"
     };
     firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // No hay una verificación de autenticación de rol aquí, se espera que el usuario ya esté autenticado
+    // y redirigido desde index.html.
 
     document.querySelector('.logout-btn').addEventListener('click', async () => {
       await firebase.auth().signOut();
@@ -163,7 +290,6 @@
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
       if (!message) return;
-
       appendMessage('user', message);
       input.value = '';
 
@@ -191,6 +317,64 @@
       container.appendChild(msg);
       container.scrollTop = container.scrollHeight;
     }
+
+    // Handle "Agendar Cita" button click
+    document.getElementById('schedule-appointment-btn').addEventListener('click', () => {
+        const chatbox = document.getElementById('chatbox');
+        const appointmentFormContainer = document.getElementById('appointment-form-container');
+        const scheduleBtn = document.getElementById('schedule-appointment-btn');
+        const logoutBtn = document.querySelector('.logout-btn');
+
+        if (appointmentFormContainer.style.display === 'block') {
+            appointmentFormContainer.style.display = 'none';
+            chatbox.style.display = 'flex'; // Show chatbox
+            scheduleBtn.textContent = 'Agendar Cita'; // Restore button text
+            logoutBtn.style.display = 'block'; // Show logout button
+        } else {
+            chatbox.style.display = 'none'; // Hide chatbox
+            appointmentFormContainer.style.display = 'block';
+            scheduleBtn.textContent = 'Volver al Chat'; // Change button text
+            logoutBtn.style.display = 'none'; // Hide logout button
+        }
+    });
+
+    // Handle appointment form submission
+    document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const profesional = document.getElementById('profesional').value;
+        const date = document.getElementById('appointment-date').value;
+        const time = document.getElementById('appointment-time').value;
+        const reason = document.getElementById('reason').value;
+
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert('Presione nuevamente para confirmar cita.');
+            return;
+        }
+
+        try {
+            await db.collection('citas').add({
+                userId: user.uid,
+                userName: user.displayName || user.email,
+                profesional: profesional,
+                date: date,
+                time: time,
+                reason: reason,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert('Cita agendada con éxito!');
+            // Optionally, clear the form or hide it after submission
+            document.getElementById('appointment-form').reset();
+            document.getElementById('appointment-form-container').style.display = 'none';
+            document.getElementById('chatbox').style.display = 'flex'; // Show chatbox again
+            document.getElementById('schedule-appointment-btn').textContent = 'Agendar Cita'; // Restore button text
+            document.querySelector('.logout-btn').style.display = 'block'; // Show logout button
+        } catch (error) {
+            console.error("Error agendando cita: ", error);
+            alert('Error al agendar la cita: ' + error.message);
+        }
+    });
   </script>
 </body>
 </html>
