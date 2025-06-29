@@ -39,69 +39,6 @@
     .stats-text {
       margin-top: 10px;
     }
-
-    /* Estilos para la navegación */
-    .admin-nav {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
-    }
-
-    .admin-nav button {
-      flex: 1;
-      padding: 12px 20px;
-      font-size: 1.1em;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-      margin: 5px;
-    }
-
-    .admin-nav button.active {
-      background-color: #0056b3;
-    }
-
-    /* Estilo del contenedor de la tabla */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .data-table th, .data-table td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-
-    .data-table th {
-      background-color: #f2f2f2;
-    }
-
-    /* Responsividad para pantallas pequeñas */
-    @media (max-width: 768px) {
-      .admin-nav {
-        flex-direction: column;
-      }
-
-      .admin-nav button {
-        width: 100%; /* Los botones ocupan el 100% en móviles */
-        margin-bottom: 10px;
-      }
-
-      .charts-container {
-        flex-direction: column; /* Los gráficos se apilan verticalmente */
-        align-items: center;
-      }
-
-      .chart {
-        width: 90%; /* Los gráficos ocupan más espacio */
-        margin-bottom: 20px;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -114,11 +51,12 @@
         <button id="nav-crear" class="active">Crear Usuario</button>
         <button id="nav-usuarios">Ver Usuarios</button>
         <button id="nav-citas">Ver Citas</button>
-        <button id="nav-estadisticas">Estadísticas</button>
+        <button id="nav-estadisticas">Estadísticas</button> <!-- Nueva pestaña -->
       </div>
 
       <div id="view-estadisticas" class="admin-view">
         <h2>Estadísticas</h2>
+
         <div class="charts-container">
           <div class="chart">
             <canvas id="usersChart"></canvas>
@@ -358,14 +296,14 @@
           row.insertCell(3).textContent = data.reason || 'N/A';
           row.insertCell(4).textContent = data.userName || 'N/A';
           const priorityCell = row.insertCell(5);
-          const priorityText = data.priority || 'N/A';
-          priorityCell.textContent = priorityText;
+      const priorityText = data.priority || 'N/A';
+      priorityCell.textContent = priorityText;
 
-          if (priorityText.toLowerCase() === 'alta') {
-            priorityCell.style.color = 'red'; // Cambia a rojo si la prioridad es alta
-          } else if (priorityText.toLowerCase() === 'normal') {
-            priorityCell.style.color = ''; // Sin color si la prioridad es normal
-          }
+      if (priorityText.toLowerCase() === 'alta') {
+        priorityCell.style.color = 'red'; // Cambia a rojo si la prioridad es alta
+      } else if (priorityText.toLowerCase() === 'normal') {
+        priorityCell.style.color = ''; // Sin color si la prioridad es normal
+      }
 
           const deleteCell = row.insertCell(6);
           const deleteBtn = document.createElement('button');
