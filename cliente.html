@@ -211,10 +211,19 @@
         gap: 15px;
         margin-top: 15px;
     }
+
+    /* Estilos para la mascota */
+    #mascota {
+      position: absolute;
+      width: 100px; /* Ajusta el tamaño según sea necesario */
+      cursor: grab;
+      transition: transform 0.2s;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <img id="mascota" src="mascota.gif" alt="Mascota" />
     <div class="panel">
       <h1>¡SENTIMENTOR!🔎​🧠</h1>
       <p>Bienvenido a tu lugar seguro. Sentimentor está aquí para escucharte, apoyarte y acompañarte en lo que sientas. No estás solo.</p>
@@ -223,8 +232,7 @@
         <div class="chatbox-header">Asistente Emocional​🧑‍💻</div>
         <div class="chatbox-messages" id="chatbox-messages"></div>
         <div class="chatbox-input">
-          <input type="text" id="chat-input" placeholder="¿Cómo te sientes hoy?"
-/>
+          <input type="text" id="chat-input" placeholder="¿Cómo te sientes hoy?" />
           <button onclick="sendMessage()">Enviar</button>
         </div>
       </div>
@@ -347,7 +355,7 @@
         const time = document.getElementById('appointment-time').value;
         const reason = document.getElementById('reason').value;
 
-        const user = firebase.auth().currentUser;
+        const user = firebase.auth().currentUser ;
         if (!user) {
             alert('Presione nuevamente para confirmar cita.');
             return;
@@ -374,6 +382,62 @@
             console.error("Error agendando cita: ", error);
             alert('Error al agendar la cita: ' + error.message);
         }
+    });
+
+    // Código para arrastrar la mascota
+    const mascota = document.getElementById('mascota');
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    mascota.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - mascota.getBoundingClientRect().left;
+      offsetY = e.clientY - mascota.getBoundingClientRect().top;
+      mascota.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const newX = e.clientX - offsetX - containerRect.left; // Ajustar la posición relativa al contenedor
+        const newY = e.clientY - offsetY - containerRect.top; // Ajustar la posición relativa al contenedor
+
+        // Limitar el movimiento de la mascota dentro del contenedor
+        mascota.style.left = `${Math.max(0, Math.min(containerRect.width - mascota.offsetWidth, newX))}px`;
+        mascota.style.top = `${Math.max(0, Math.min(containerRect.height - mascota.offsetHeight, newY))}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      mascota.style.cursor = 'grab';
+    });
+
+    // Para dispositivos táctiles
+    mascota.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      const touch = e.touches[0];
+      offsetX = touch.clientX - mascota.getBoundingClientRect().left;
+      offsetY = touch.clientY - mascota.getBoundingClientRect().top;
+      mascota.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (isDragging) {
+        const touch = e.touches[0];
+        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const newX = touch.clientX - offsetX - containerRect.left; // Ajustar la posición relativa al contenedor
+        const newY = touch.clientY - offsetY - containerRect.top; // Ajustar la posición relativa al contenedor
+
+        // Limitar el movimiento de la mascota dentro del contenedor
+        mascota.style.left = `${Math.max(0, Math.min(containerRect.width - mascota.offsetWidth, newX))}px`;
+        mascota.style.top = `${Math.max(0, Math.min(containerRect.height - mascota.offsetHeight, newY))}px`;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+      mascota.style.cursor = 'grab';
     });
   </script>
 </body>
