@@ -6,6 +6,7 @@
   <title>Panel de Administrador</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .btn-delete {
       background-color: #ff4d4d;
@@ -19,6 +20,88 @@
     .btn-delete:hover {
       background-color: #e63946;
     }
+
+    .charts-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .chart {
+      width: 45%;
+      text-align: center;
+    }
+
+    .chart canvas {
+      max-width: 100%;
+    }
+
+    .stats-text {
+      margin-top: 10px;
+    }
+
+    /* Estilos para la navegación */
+    .admin-nav {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .admin-nav button {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      margin: 5px;
+    }
+
+    .admin-nav button.active {
+      background-color: #0056b3;
+    }
+
+    /* Estilo del contenedor de la tabla */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th, .data-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .data-table th {
+      background-color: #f2f2f2;
+    }
+
+    /* Responsividad para pantallas pequeñas */
+    @media (max-width: 768px) {
+      .admin-nav {
+        flex-direction: column;
+      }
+
+      .admin-nav button {
+        width: 100%; /* Los botones ocupan el 100% en móviles */
+        margin-bottom: 10px;
+      }
+
+      .charts-container {
+        flex-direction: column; /* Los gráficos se apilan verticalmente */
+        align-items: center;
+      }
+
+      .chart {
+        width: 90%; /* Los gráficos ocupan más espacio */
+        margin-bottom: 20px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -31,6 +114,21 @@
         <button id="nav-crear" class="active">Crear Usuario</button>
         <button id="nav-usuarios">Ver Usuarios</button>
         <button id="nav-citas">Ver Citas</button>
+        <button id="nav-estadisticas">Estadísticas</button>
+      </div>
+
+      <div id="view-estadisticas" class="admin-view">
+        <h2>Estadísticas</h2>
+        <div class="charts-container">
+          <div class="chart">
+            <canvas id="usersChart"></canvas>
+            <p id="userStats" class="stats-text"></p>
+          </div>
+          <div class="chart">
+            <canvas id="appointmentsChart"></canvas>
+            <p id="appointmentsStats" class="stats-text"></p>
+          </div>
+        </div>
       </div>
 
       <div id="view-crear" class="admin-view active">
@@ -59,7 +157,6 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID de Usuario</th>
               <th>Nombre</th>
               <th>Email</th>
               <th>Rol</th>
@@ -82,7 +179,7 @@
               <th>Hora</th>
               <th>Motivo</th>
               <th>Usuario</th>
-              <th>Email Usuario</th>
+              <th>Prioridad</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -145,8 +242,8 @@
       navButtons.forEach(btn => btn.classList.remove('active'));
       adminViews.forEach(view => view.classList.remove('active'));
 
-      const activeButton = document.getElementById(nav-${viewId});
-      const activeView = document.getElementById(view-${viewId});
+      const activeButton = document.getElementById(`nav-${viewId}`);
+      const activeView = document.getElementById(`view-${viewId}`);
       if (activeButton) activeButton.classList.add('active');
       if (activeView) activeView.classList.add('active');
 
@@ -154,6 +251,8 @@
         loadUsers();
       } else if (viewId === 'citas') {
         loadAppointments();
+      } else if (viewId === 'estadisticas') {
+        loadStatistics();
       }
     }
 
@@ -182,7 +281,7 @@
           rol: role
         });
 
-        alert(Usuario ${name} (${email}) con rol ${role} creado exitosamente.);
+        alert(`Usuario ${name} (${email}) con rol ${role} creado exitosamente.`);
         document.getElementById('create-user-form').reset();
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
@@ -212,17 +311,16 @@
         usersSnapshot.forEach(doc => {
           const userData = doc.data();
           const row = usersTableBody.insertRow();
-          row.insertCell(0).textContent = doc.id;
-          row.insertCell(1).textContent = userData.nombre || 'N/A';
-          row.insertCell(2).textContent = userData.correo || 'N/A';
-          row.insertCell(3).textContent = userData.rol || 'cliente';
+          row.insertCell(0).textContent = userData.nombre || 'N/A';
+          row.insertCell(1).textContent = userData.correo || 'N/A';
+          row.insertCell(2).textContent = userData.rol || 'cliente';
 
-          const deleteCell = row.insertCell(4);
+          const deleteCell = row.insertCell(3);
           const deleteBtn = document.createElement('button');
           deleteBtn.textContent = 'Eliminar';
           deleteBtn.classList.add('btn-delete');
           deleteBtn.onclick = async () => {
-            if (confirm(¿Eliminar al usuario ${userData.nombre}?)) {
+            if (confirm(`¿Eliminar al usuario ${userData.nombre}?`)) {
               await db.collection('usuarios').doc(doc.id).delete();
               alert('Usuario eliminado.');
               loadUsers();
@@ -232,7 +330,7 @@
         });
       } catch (error) {
         console.error("Error al cargar usuarios: ", error);
-        usersTableBody.innerHTML = <tr><td colspan="5">Error: ${error.message}</td></tr>;
+        usersTableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
       }
     }
 
@@ -259,10 +357,15 @@
           row.insertCell(2).textContent = data.time || 'N/A';
           row.insertCell(3).textContent = data.reason || 'N/A';
           row.insertCell(4).textContent = data.userName || 'N/A';
+          const priorityCell = row.insertCell(5);
+          const priorityText = data.priority || 'N/A';
+          priorityCell.textContent = priorityText;
 
-          const emailCell = row.insertCell(5);
-          emailCell.id = user-email-${doc.id};
-          emailCell.textContent = 'Cargando...';
+          if (priorityText.toLowerCase() === 'alta') {
+            priorityCell.style.color = 'red'; // Cambia a rojo si la prioridad es alta
+          } else if (priorityText.toLowerCase() === 'normal') {
+            priorityCell.style.color = ''; // Sin color si la prioridad es normal
+          }
 
           const deleteCell = row.insertCell(6);
           const deleteBtn = document.createElement('button');
@@ -292,13 +395,115 @@
 
         const results = await Promise.all(userPromises);
         results.forEach(r => {
-          const cell = document.getElementById(user-email-${r.docId});
+          const cell = document.getElementById(`user-email-${r.docId}`);
           if (cell) cell.textContent = r.email;
         });
 
       } catch (error) {
         console.error("Error al cargar citas: ", error);
-        appointmentsTableBody.innerHTML = <tr><td colspan="7">Error: ${error.message}</td></tr>;
+        appointmentsTableBody.innerHTML = `<tr><td colspan="7">Error: ${error.message}</td></tr>`;
+      }
+    }
+
+    // Cargar estadísticas
+    async function loadStatistics() {
+      try {
+        const usersSnapshot = await db.collection('usuarios').get();
+        const citasSnapshot = await db.collection('citas').get();
+
+        let admins = 0, clients = 0;
+        usersSnapshot.forEach(doc => {
+          const userData = doc.data();
+          if (userData.rol === 'admin') {
+            admins++;
+          } else {
+            clients++;
+          }
+        });
+
+        let highPriority = 0, normalPriority = 0;
+        citasSnapshot.forEach(doc => {
+          const citaData = doc.data();
+          if (citaData.priority === 'alta') {
+            highPriority++;
+          } else {
+            normalPriority++;
+          }
+        });
+
+        // Datos de gráficos de usuarios
+        const userData = {
+          labels: ['Administrador', 'Cliente'],
+          datasets: [{
+            data: [admins, clients],
+            backgroundColor: ['green', 'blue'],
+          }]
+        };
+        const userOptions = {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  const total = admins + clients;
+                  const percentage = (tooltipItem.raw / total * 100).toFixed(2);
+                  return `${tooltipItem.label}: ${tooltipItem.raw} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        };
+
+        const usersChart = new Chart(document.getElementById('usersChart'), {
+          type: 'pie',
+          data: userData,
+          options: userOptions
+        });
+
+        // Mostrar estadísticas de usuarios
+        const userStatsText = `Total de Usuarios: ${admins + clients} (${(100).toFixed(2)}%)`;
+        document.getElementById('userStats').innerText = userStatsText;
+
+        // Datos de gráficos de citas
+        const appointmentsData = {
+          labels: ['Alta', 'Normal'],
+          datasets: [{
+            data: [highPriority, normalPriority],
+            backgroundColor: ['red', 'green'],
+          }]
+        };
+        const appointmentsOptions = {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  const total = highPriority + normalPriority;
+                  const percentage = (tooltipItem.raw / total * 100).toFixed(2);
+                  return `${tooltipItem.label}: ${tooltipItem.raw} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        };
+
+        const appointmentsChart = new Chart(document.getElementById('appointmentsChart'), {
+          type: 'pie',
+          data: appointmentsData,
+          options: appointmentsOptions
+        });
+
+        // Mostrar estadísticas de citas
+        const appointmentsStatsText = `Total de Citas: ${highPriority + normalPriority} (${(100).toFixed(2)}%)`;
+        document.getElementById('appointmentsStats').innerText = appointmentsStatsText;
+      } catch (error) {
+        console.error("Error al cargar estadísticas: ", error);
       }
     }
   </script>
