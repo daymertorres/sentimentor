@@ -475,3 +475,47 @@
       if (isDragging) {
         const containerRect = document.querySelector('.container').getBoundingClientRect();
         const newX = e.clientX - offsetX - containerRect.left; // Ajustar la
+        const newY = e.clientY - offsetY - containerRect.top; // Ajustar la posición relativa al contenedor
+
+        // Limitar el movimiento de la mascota dentro del contenedor
+        mascota.style.left = `${Math.max(0, Math.min(containerRect.width - mascota.offsetWidth, newX))}px`;
+        mascota.style.top = `${Math.max(0, Math.min(containerRect.height - mascota.offsetHeight, newY))}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      mascota.style.cursor = 'grab';
+    });
+
+    // Para dispositivos táctiles
+
+    mascota.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      const touch = e.touches[0];
+      offsetX = touch.clientX - mascota.getBoundingClientRect().left;
+      offsetY = touch.clientY - mascota.getBoundingClientRect().top;
+      mascota.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (isDragging) {
+        const touch = e.touches[0];
+        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const newX = touch.clientX - offsetX - containerRect.left; // Ajustar la posición relativa al contenedor
+        const newY = touch.clientY - offsetY - containerRect.top; // Ajustar la posición relativa al contenedor
+
+        // Limitar el movimiento de la mascota dentro del contenedor
+
+        mascota.style.left = `${Math.max(0, Math.min(containerRect.width - mascota.offsetWidth, newX))}px`;
+        mascota.style.top = `${Math.max(0, Math.min(containerRect.height - mascota.offsetHeight, newY))}px`;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+      mascota.style.cursor = 'grab';
+    });
+  </script>
+</body>
+</html>
