@@ -257,6 +257,14 @@
           <label for="reason">Motivo de la Cita:</label>
           <textarea id="reason" placeholder="Describe brevemente el motivo de tu cita..." required></textarea>
 
+          <!-- Campo de Prioridad Agregado -->
+          <label for="priority">Prioridad de la Cita:</label>
+          <select id="priority" required>
+              <option value="">-- Selecciona --</option>
+              <option value="normal">Normal</option>
+              <option value="alta">Alta</option>
+          </select>
+
           <button type="submit" class="btn-submit">Confirmar Cita</button>
         </form>
       </div>
@@ -354,6 +362,7 @@
         const date = document.getElementById('appointment-date').value;
         const time = document.getElementById('appointment-time').value;
         const reason = document.getElementById('reason').value;
+        const priority = document.getElementById('priority').value; // Obtener la prioridad
 
         const user = firebase.auth().currentUser ;
         if (!user) {
@@ -369,6 +378,7 @@
                 date: date,
                 time: time,
                 reason: reason,
+                priority: priority,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             alert('Cita agendada con éxito!');
