@@ -351,20 +351,21 @@
     }
 
     async function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const message = input.value.trim();
-        if (!message) return;
-        appendMessage('user', message);
-        input.value = '';
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+    appendMessage('user', message);
+    input.value = '';
 
-        try {
-            const response = await getChatGPTResponse(message);
-            typeMessage(response, 'bot');
-        } catch (error) {
-            appendMessage('bot', "Lo siento, ocurrió un error al procesar tu solicitud.");
-            console.error("Error en la API de ChatGPT:", error);
-        }
+    try {
+        const response = await getChatGPTResponse(message);
+        typeMessage(response, 'bot');
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        appendMessage('bot', "Lo siento, ocurrió un error al procesar tu solicitud.");
     }
+}
+
 
     function appendMessage(sender, text) {
         const container = document.getElementById('chatbox-messages');
