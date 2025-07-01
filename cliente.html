@@ -316,21 +316,21 @@
     });
 
     async function getChatGPTResponse(message) {
-    const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message })
-    });
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message })
+        });
 
-    if (!response.ok) {
-        throw new Error('Error en la API de ChatGPT');
+        if (!response.ok) {
+            throw new Error('Error en la API de ChatGPT');
+        }
+
+        const data = await response.json();
+        return data; // Asegúrate de que esto coincida con la estructura de tu respuesta
     }
-
-    const data = await response.json();
-    return data; // Asegúrate de que esto coincida con la estructura de tu respuesta
-}
 
     function typeMessage(text, sender) {
         const container = document.getElementById('chatbox-messages');
@@ -428,7 +428,7 @@
             return;
         }
 
-        const user = firebase.auth().currentUser  ;
+        const user = firebase.auth().currentUser;
         if (!user) {
             alert('Presione nuevamente para confirmar cita.');
             return;
@@ -496,7 +496,7 @@
       mascota.style.cursor = 'grabbing';
     });
 
-    document.addEventListener('touchmove', (e) => {
+document.addEventListener('touchmove', (e) => {
       if (isDragging) {
         const touch = e.touches[0];
         const containerRect = document.querySelector('.container').getBoundingClientRect();
