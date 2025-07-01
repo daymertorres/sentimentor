@@ -316,20 +316,18 @@
     });
 
     async function getChatGPTResponse(message) {
-        const prompt = `Eres Sentimentor, un asistente emocional para estudiantes universitarios de la Universidad Peruana Los Andes. Responde de manera empática y comprensiva, pero también de forma corta y directa. Limita tus respuestas a un máximo de 2 oraciones, evitando respuestas largas. Al finalizar el chat o Si el estudiante menciona pensamientos preocupantes, sugiérele que agende una cita con un profesional de la universidad. Aquí está el mensaje del estudiante: "${message}"`;
-         const response = await fetch('/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message })
-});
-                
-            })
-        });
+  const prompt = `Eres Sentimentor, un asistente emocional para estudiantes universitarios de la Universidad Peruana Los Andes. Responde de manera empática y comprensiva, pero también de forma corta y directa. Limita tus respuestas a un máximo de 2 oraciones, evitando respuestas largas. Al finalizar el chat o si el estudiante menciona pensamientos preocupantes, sugiérele que agende una cita con un profesional de la universidad. Aquí está el mensaje del estudiante: "${message}"`;
 
-        const data = await response.json();
-        return data.choices[0].message.content;
-    }
+  const response = await fetch('/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message })
+  });
 
+  const data = await response.json();
+  return data.content;
+}
+    
     function typeMessage(text, sender) {
         const container = document.getElementById('chatbox-messages');
         const msg = document.createElement('div');
