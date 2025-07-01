@@ -19,6 +19,12 @@ export default async function handler(req, res) {
                 })
             });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error en la API de OpenAI:", errorData);
+                return res.status(response.status).json({ error: errorData });
+            }
+
             const data = await response.json();
             res.status(200).json(data.choices[0].message.content);
         } catch (error) {
