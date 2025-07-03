@@ -20,11 +20,11 @@ loginBtn.addEventListener('click', () => {
 function getErrorMessage(errorCode) {
   switch (errorCode) {
     case 'auth/invalid-email':
-      return "La dirección de correo electrónico está mal formada.";
+      return "La dirección de correo electrónico está en formato inválido.";
     case 'auth/invalid-login-credentials':
       return "Los datos ingresados son incorrectos";
     case 'auth/missing-password':
-      return "La contraseña es incorrecta.";
+      return "Debe ingresar una contraseña.";
     case 'auth/email-already-in-use':
       return "El correo electrónico ya está en uso.";
     case 'auth/operation-not-allowed':
