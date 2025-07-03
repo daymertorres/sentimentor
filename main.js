@@ -16,7 +16,27 @@ loginBtn.addEventListener('click', () => {
   container.classList.remove('active');
 });
 
-
+// Función para obtener mensaje de error en español
+function getErrorMessage(errorCode) {
+  switch (errorCode) {
+    case 'auth/invalid-email':
+      return "La dirección de correo electrónico está mal formada.";
+    case 'auth/invalid-login-credentials':
+      return "Los datos ingresados son incorrectos";
+    case 'auth/missing-password':
+      return "La contraseña es incorrecta.";
+    case 'auth/email-already-in-use':
+      return "El correo electrónico ya está en uso.";
+    case 'auth/operation-not-allowed':
+      return "La operación no está permitida.";
+    case 'auth/weak-password':
+      return "La contraseña debe tener al menos 6 caracteres.";
+    case 'auth/too-many-requests':
+      return "Demasiadas solicitudes. Intenta de nuevo más tarde.";
+    default:
+      return "Error desconocido. Por favor, inténtalo de nuevo.";
+  }
+}
 
 // LOGIN con correo
 document.getElementById("login-btn").addEventListener("click", async () => {
@@ -39,7 +59,8 @@ document.getElementById("login-btn").addEventListener("click", async () => {
       alert("No se encontró el rol del usuario.");
     }
   } catch (error) {
-    alert("Error al iniciar sesión: " + error.message);
+    console.error("Error completo:", error); // Imprimir el error completo en la consola
+    alert("Error al iniciar sesión: " + getErrorMessage(error.code)); // Mensaje de error en español
   }
 });
 
@@ -61,7 +82,8 @@ document.getElementById("register-btn").addEventListener("click", async () => {
 
     window.location.href = "cliente.html";
   } catch (error) {
-    alert("Error al registrarse: " + error.message);
+    console.error("Error completo:", error); // Imprimir el error completo en la consola
+    alert("Error al registrarse: " + getErrorMessage(error.code)); // Mensaje de error en español
   }
 });
 
@@ -91,6 +113,7 @@ document.getElementById("google-login").addEventListener("click", async (e) => {
       window.location.href = "cliente.html";
     }
   } catch (error) {
-    alert("Error con Google: " + error.message);
+    console.error("Error completo:", error); // Imprimir el error completo en la consola
+    alert("Error con Google: " + getErrorMessage(error.code)); // Mensaje de error en español
   }
 });
