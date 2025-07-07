@@ -307,6 +307,7 @@ async function guardarCambiosUsuario() {
   try {
     await db.collection('usuarios').doc(usuarioEditandoId).update({ nombre, rol });
     cerrarModalUsuario();
+    mostrarToast("Usuario modificado correctamente.");
     loadUsers();
   } catch (error) {
     console.error("Error al modificar usuario:", error);
@@ -356,6 +357,7 @@ async function guardarCambiosCita() {
   try {
     await db.collection('citas').doc(citaEditandoId).update({ date, time, reason, priority });
     cerrarModalCita();
+    mostrarToast("Cita modificada correctamente.");
     loadAppointments();
   } catch (error) {
     console.error("Error al modificar cita:", error);
@@ -722,6 +724,38 @@ actionsCell.appendChild(deleteBtn);
         console.error("Error al cargar estadísticas: ", error);
       }
     }
+
+function mostrarToast(mensaje, color = "#28a745") {
+  const toast = document.getElementById("toast");
+  toast.textContent = mensaje;
+  toast.style.backgroundColor = color;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2500);
+}
+
+
+    
   </script>
+
+<!-- Notificación flotante -->
+<div id="toast" style="
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: none;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+"></div>
+
+  
 </body>
 </html>
