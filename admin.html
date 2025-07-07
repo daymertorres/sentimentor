@@ -235,19 +235,39 @@
 
 
 <!-- Modal Editar Cita -->
+<!-- Modal Editar Cita -->
 <div id="modal-editar-cita" class="modal">
   <div class="modal-content">
-    <h3>Editar Cita</h3>
-    <input type="date" id="edit-cita-fecha" required />
-    <input type="time" id="edit-cita-hora" required />
-    <input type="text" id="edit-cita-motivo" placeholder="Motivo" required />
-    <select id="edit-cita-prioridad" required>
-      <option value="">Selecciona prioridad</option>
-      <option value="alta">Alta</option>
-      <option value="normal">Normal</option>
-    </select>
-    <button onclick="guardarCambiosCita()">Guardar Cambios</button>
-    <button onclick="cerrarModalCita()">Cancelar</button>
+    <h2>Editar Cita</h2>
+
+    <div class="modal-input">
+      <label for="edit-cita-fecha">Fecha de la cita:</label>
+      <input type="date" id="edit-cita-fecha" required />
+    </div>
+
+    <div class="modal-input">
+      <label for="edit-cita-hora">Hora:</label>
+      <input type="time" id="edit-cita-hora" required />
+    </div>
+
+    <div class="modal-input">
+      <label for="edit-cita-motivo">Motivo:</label>
+      <input type="text" id="edit-cita-motivo" placeholder="Motivo de la cita" required />
+    </div>
+
+    <div class="modal-input">
+      <label for="edit-cita-prioridad">Prioridad:</label>
+      <select id="edit-cita-prioridad" required>
+        <option value="">Selecciona una prioridad</option>
+        <option value="alta">Alta</option>
+        <option value="normal">Normal</option>
+      </select>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-save" onclick="guardarCambiosCita()">Guardar</button>
+      <button class="btn-cancel" onclick="cerrarModalCita()">Cancelar</button>
+    </div>
   </div>
 </div>
 
