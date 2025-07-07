@@ -39,6 +39,50 @@
     .stats-text {
       margin-top: 10px;
     }
+
+    .btn-edit {
+  background-color: #ffcc00;
+  color: black;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.btn-edit:hover {
+  background-color: #e6b800;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal input, .modal select {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.modal button {
+  margin-top: 10px;
+}
+
   </style>
 </head>
 <body>
@@ -130,6 +174,153 @@
       <button class="logout-btn">Cerrar Sesión</button>
     </div>
   </div>
+
+ <!-- Modal Editar Usuario -->
+<div id="modal-editar-usuario" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Editar Usuario</h2>
+    <div class="modal-input">
+      <label for="edit-user-nombre">Nombre:</label>
+      <input type="text" id="edit-user-nombre" placeholder="Nombre del usuario">
+    </div>
+    <div class="modal-input">
+      <label for="edit-user-rol">Rol:</label>
+      <select id="edit-user-rol">
+        <option value="cliente">Cliente</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-save" onclick="guardarCambiosUsuario()">Guardar</button>
+      <button class="btn-cancel" onclick="cerrarModalUsuario()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal Editar Cita -->
+<div id="modal-editar-cita" class="modal">
+  <div class="modal-content">
+    <h3>Editar Cita</h3>
+    <input type="date" id="edit-cita-fecha" required />
+    <input type="time" id="edit-cita-hora" required />
+    <input type="text" id="edit-cita-motivo" placeholder="Motivo" required />
+    <select id="edit-cita-prioridad" required>
+      <option value="">Selecciona prioridad</option>
+      <option value="alta">Alta</option>
+      <option value="normal">Normal</option>
+    </select>
+    <button onclick="guardarCambiosCita()">Guardar Cambios</button>
+    <button onclick="cerrarModalCita()">Cancelar</button>
+  </div>
+</div>
+
+
+<script>
+  let usuarioEditandoId = null;
+let citaEditandoId = null;
+
+// ---------- USUARIO ----------
+function abrirModalUsuario(id, nombre, rol) {
+  usuarioEditandoId = id;
+  document.getElementById('edit-user-nombre').value = nombre;
+  document.getElementById('edit-user-rol').value = rol;
+  document.getElementById('modal-editar-usuario').style.display = 'flex';
+}
+
+
+function cerrarModalUsuario() {
+  document.getElementById('modal-editar-usuario').style.display = 'none';
+  usuarioEditandoId = null;
+}
+
+async function guardarCambiosUsuario() {
+  const nombre = document.getElementById('edit-user-nombre').value.trim();
+  const rol = document.getElementById('edit-user-rol').value;
+
+  if (!nombre) {
+    alert("Nombre no puede estar vacío.");
+    return;
+  }
+
+  if (!rol || (rol !== "admin" && rol !== "cliente")) {
+    alert("Rol inválido. Debe ser 'admin' o 'cliente'.");
+    return;
+  }
+
+  try {
+    await db.collection('usuarios').doc(usuarioEditandoId).update({ nombre, rol });
+    cerrarModalUsuario();
+    loadUsers();
+  } catch (error) {
+    console.error("Error al modificar usuario:", error);
+    alert("Error al modificar el usuario.");
+  }
+}
+
+// ---------- CITA ----------
+function abrirModalCita(id, fecha, hora, motivo, prioridad) {
+  citaEditandoId = id;
+  document.getElementById('edit-cita-fecha').value = fecha;
+  document.getElementById('edit-cita-hora').value = hora;
+  document.getElementById('edit-cita-motivo').value = motivo;
+  document.getElementById('edit-cita-prioridad').value = prioridad;
+  document.getElementById('modal-editar-cita').style.display = 'flex';
+}
+
+function cerrarModalCita() {
+  document.getElementById('modal-editar-cita').style.display = 'none';
+  citaEditandoId = null;
+}
+
+async function guardarCambiosCita() {
+  const date = document.getElementById('edit-cita-fecha').value;
+  const time = document.getElementById('edit-cita-hora').value;
+  const reason = document.getElementById('edit-cita-motivo').value.trim();
+  const priority = document.getElementById('edit-cita-prioridad').value;
+
+  if (!date || !time || !reason || !priority) {
+    alert("Todos los campos son obligatorios.");
+    return;
+  }
+
+  const selectedDateTime = new Date(`${date}T${time}`);
+  const now = new Date();
+
+  if (selectedDateTime <= now) {
+    alert("La fecha y hora deben ser futuras.");
+    return;
+  }
+
+  if (priority !== "alta" && priority !== "normal") {
+    alert("Prioridad inválida. Debe ser 'alta' o 'normal'.");
+    return;
+  }
+
+  try {
+    await db.collection('citas').doc(citaEditandoId).update({ date, time, reason, priority });
+    cerrarModalCita();
+    loadAppointments();
+  } catch (error) {
+    console.error("Error al modificar cita:", error);
+    alert("Error al modificar la cita.");
+  }
+}
+
+
+// Cerrar modal si el usuario hace clic fuera del contenido
+window.addEventListener('click', function(event) {
+  const modalUsuario = document.getElementById('modal-editar-usuario');
+  const modalCita = document.getElementById('modal-editar-cita');
+
+  if (event.target === modalUsuario) cerrarModalUsuario();
+  if (event.target === modalCita) cerrarModalCita();
+});
+
+
+</script>
+
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -247,25 +438,39 @@
         }
 
         usersSnapshot.forEach(doc => {
-          const userData = doc.data();
-          const row = usersTableBody.insertRow();
-          row.insertCell(0).textContent = userData.nombre || 'N/A';
-          row.insertCell(1).textContent = userData.correo || 'N/A';
-          row.insertCell(2).textContent = userData.rol || 'cliente';
+  const userData = doc.data(); // Asegura que se cargan los datos del usuario
 
-          const deleteCell = row.insertCell(3);
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'Eliminar';
-          deleteBtn.classList.add('btn-delete');
-          deleteBtn.onclick = async () => {
-            if (confirm(`¿Eliminar al usuario ${userData.nombre}?`)) {
-              await db.collection('usuarios').doc(doc.id).delete();
-              alert('Usuario eliminado.');
-              loadUsers();
-            }
-          };
-          deleteCell.appendChild(deleteBtn);
-        });
+  const row = usersTableBody.insertRow();
+  row.insertCell(0).textContent = userData.nombre || 'N/A';
+  row.insertCell(1).textContent = userData.correo || 'N/A';
+  row.insertCell(2).textContent = userData.rol || 'cliente';
+
+  const actionsCell = row.insertCell(3);
+
+  // Botón Modificar
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'Modificar';
+  editBtn.classList.add('btn-edit');
+  editBtn.onclick = () => {
+    abrirModalUsuario(doc.id, userData.nombre || '', userData.rol || 'cliente');
+  };
+  actionsCell.appendChild(editBtn);
+
+  // Botón Eliminar
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Eliminar';
+  deleteBtn.classList.add('btn-delete');
+  deleteBtn.onclick = async () => {
+    if (confirm(`¿Eliminar al usuario ${userData.nombre}?`)) {
+      await db.collection('usuarios').doc(doc.id).delete();
+      alert('Usuario eliminado.');
+      loadUsers();
+    }
+  };
+  actionsCell.appendChild(deleteBtn);
+});
+
+       
       } catch (error) {
         console.error("Error al cargar usuarios: ", error);
         usersTableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
@@ -305,18 +510,34 @@
         priorityCell.style.color = ''; // Sin color si la prioridad es normal
       }
 
-          const deleteCell = row.insertCell(6);
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'Eliminar';
-          deleteBtn.classList.add('btn-delete');
-          deleteBtn.onclick = async () => {
-            if (confirm('¿Eliminar esta cita?')) {
-              await db.collection('citas').doc(doc.id).delete();
-              alert('Cita eliminada.');
-              loadAppointments();
-            }
-          };
-          deleteCell.appendChild(deleteBtn);
+          const actionsCell = row.insertCell(6);
+
+// Botón Modificar
+const editBtn = document.createElement('button');
+editBtn.textContent = 'Modificar';
+editBtn.classList.add('btn-edit');
+editBtn.onclick = () => abrirModalCita(
+  doc.id,
+  data.date || '',
+  data.time || '',
+  data.reason || '',
+  data.priority || 'normal'
+);
+actionsCell.appendChild(editBtn);
+
+// Botón Eliminar
+const deleteBtn = document.createElement('button');
+deleteBtn.textContent = 'Eliminar';
+deleteBtn.classList.add('btn-delete');
+deleteBtn.onclick = async () => {
+  if (confirm('¿Eliminar esta cita?')) {
+    await db.collection('citas').doc(doc.id).delete();
+    alert('Cita eliminada.');
+    loadAppointments();
+  }
+};
+actionsCell.appendChild(deleteBtn);
+
 
           if (data.userId) {
             userPromises.push(
