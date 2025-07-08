@@ -317,7 +317,7 @@
     });
 
     async function getChatGPTResponse(message) {
-    const response = await fetch('https://my-chatgpt-backend.glitch.me/getChatGPTResponse', {
+    const response = await fetch('https://chatgpt-backend-sentimentor.vercel.app/api/chatgpt', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
